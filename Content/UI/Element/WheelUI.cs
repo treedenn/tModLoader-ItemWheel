@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using ItemWheel.Content.Common.Configs;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
@@ -21,8 +22,22 @@ namespace ItemWheel.Content.UI.Element
 
         private float angle { get => 360f / _wheelElements.Length; }
 
+        private Action funcAnchor;
+
         protected WheelUI(int wheelSize, int itemSize)
         {
+            ClientConfigs clientConfigs = ModContent.GetInstance<ClientConfigs>();
+
+            switch (clientConfigs.WheelPlacement)
+            {
+                case WheelPlacement.PLAYER:
+                    funcAnchor = () => UpdateAnchorAtPlayer();
+                    break;
+                case WheelPlacement.MOUSE:
+                    funcAnchor = () => UpdateAnchorAtMouse();
+                    break;
+            }
+
             _wheelElements = new WheelElement[wheelSize];
             _elementBorders = new Vector2[wheelSize];
             _wheelVectors = new Vector2[wheelSize];
@@ -35,32 +50,27 @@ namespace ItemWheel.Content.UI.Element
                 _wheelElements[i] = new WheelElement(texture, itemSize);
                 Append(_wheelElements[i]);
             }
-
-            UpdateWheelElements();
         }
 
         public override void Update(GameTime gameTime)
         {
-            if (ItemWheel.ToggleWheelKey.Current || ItemWheel.ToggleWheelKey.JustReleased)
+            if (ItemWheel.ToggleWheelKey.JustPressed || ItemWheel.ToggleWheelKey.Current || ItemWheel.ToggleWheelKey.JustReleased)
             {
-                base.Update(gameTime);
                 UpdateWheelElements();
+                base.Update(gameTime);
             }
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (ItemWheel.ToggleWheelKey.Current)
-            {
+            if (ItemWheel.ToggleWheelKey.Current) {
                 base.Draw(spriteBatch);
             }
         }
 
-        protected Vector2 UpdateAnchor()
+        protected void UpdateAnchor()
         {
-            Vector2 playerCenter = Main.LocalPlayer.Center.ToScreenPosition();
-            Anchor = new((int)playerCenter.X, (int)playerCenter.Y);
-            return Anchor;
+            funcAnchor();
         }
 
         protected Vector2 UpdateMouseAnchor()
@@ -82,13 +92,28 @@ namespace ItemWheel.Content.UI.Element
 
                 _wheelElements[i].Anchor = Anchor;
                 _wheelElements[i].MouseAnchor = MouseAnchor;
-                _wheelElements[i].SetWheelVectors(_elementBorders[i % _elementBorders.Length], _elementBorders[(i + 1) % _elementBorders.Length]);
+                _wheelElements[i].SetBorders(_elementBorders[i % _elementBorders.Length], _elementBorders[(i + 1) % _elementBorders.Length]);
             }
 
             for (int i = 0; i < _elementBorders.Length; i++)
             {
                 _elementBorders[i] = Vector2.UnitY.RotatedBy((i * angle - 45f) * Math.PI / 180);
             }
+        }
+
+        private void UpdateAnchorAtPlayer()
+        {
+            Vector2 playerCenter = Main.LocalPlayer.Center.ToScreenPosition();
+            Anchor = new((int)playerCenter.X, (int)playerCenter.Y);
+        }
+
+        private void UpdateAnchorAtMouse()
+        {
+            if (ItemWheel.ToggleWheelKey.JustPressed)
+            {
+                Vector2 mouse = Main.MouseScreen;
+                Anchor = new((int)mouse.X, (int)mouse.Y);
+            } 
         }
     }
 }

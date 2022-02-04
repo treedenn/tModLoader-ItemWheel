@@ -13,7 +13,7 @@ namespace ItemWheel.Content.UI.Element
     {
         public Vector2 Anchor { get; set; }
         public Vector2 MouseAnchor { get; set; }
-        public Vector2[] WheelVectors { get; private set; }
+        public Vector2[] Borders { get; private set; }
         public Item HoldingItem { get; private set; }
         public Vector2 ItemPosition { get; set; }
 
@@ -25,7 +25,7 @@ namespace ItemWheel.Content.UI.Element
 
         public WheelElement(Asset<Texture2D> texture, float itemSize) : base()
         {
-            WheelVectors = new Vector2[2];
+            Borders = new Vector2[2];
             HoldingItem = null;
 
             _itemSize = itemSize;
@@ -37,13 +37,13 @@ namespace ItemWheel.Content.UI.Element
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
-
             // Add item when holding shift + left - click(empty)
             // Delete item when holding shift + right - click
             // Select item on mouse release, no shift
 
-            if (ItemWheel.ToggleWheelKey.JustReleased && BetweenBorders() && Main.mouseItem.IsAir)
+            if (!BetweenBorders()) return;
+
+            if (ItemWheel.ToggleWheelKey.JustReleased && Main.mouseItem.IsAir)
             {
                 if (HoldingItem != null)
                 {
@@ -58,7 +58,7 @@ namespace ItemWheel.Content.UI.Element
                     }
                 }
             }
-            else if (ItemWheel.ToggleWheelKey.Current && BetweenBorders())
+            else if (ItemWheel.ToggleWheelKey.Current)
             {
                 Main.LocalPlayer.mouseInterface = true;
 
@@ -78,8 +78,6 @@ namespace ItemWheel.Content.UI.Element
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
-            base.DrawSelf(spriteBatch);
-
             //spriteBatch.DrawString(FontAssets.MouseText.Value, "", GetDimensions().Position(), Color.White);
 
             if (BetweenBorders())
@@ -95,24 +93,12 @@ namespace ItemWheel.Content.UI.Element
             {
                 DrawItem(spriteBatch, HoldingItem);
             }
-
-            if (ItemWheel.ToggleWheelKey.JustReleased && BetweenBorders())
-            {
-                if (HoldingItem != null)
-                {
-                    int invIndex = FindItemInInventory(HoldingItem.type);
-                    if (invIndex != -1)
-                    {
-                        spriteBatch.DrawString(FontAssets.MouseText.Value, "" + invIndex, GetDimensions().Center(), Color.White);
-                    }
-                }
-            }
         }
 
-        public void SetWheelVectors(Vector2 v0, Vector2 v1)
+        public void SetBorders(Vector2 v0, Vector2 v1)
         {
-            WheelVectors[0] = v0;
-            WheelVectors[1] = v1;
+            Borders[0] = v0;
+            Borders[1] = v1;
         }
 
         protected void DrawItem(SpriteBatch spriteBatch, Item item)
@@ -128,7 +114,7 @@ namespace ItemWheel.Content.UI.Element
 
         protected bool BetweenBorders()
         {
-            return -CrossProduct(MouseAnchor, WheelVectors[0]) > 0 && CrossProduct(MouseAnchor, WheelVectors[1]) > 0;
+            return -CrossProduct(MouseAnchor, Borders[0]) > 0 && CrossProduct(MouseAnchor, Borders[1]) > 0;
         }
 
         protected static int FindItemInInventory(int itemType)

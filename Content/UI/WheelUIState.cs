@@ -1,6 +1,8 @@
-﻿using ItemWheel.Content.UI.Element;
+﻿using ItemWheel.Content.Common.Configs;
+using ItemWheel.Content.UI.Element;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Terraria.ModLoader;
 using Terraria.UI;
 
 namespace ItemWheel.Content.UI
@@ -11,18 +13,19 @@ namespace ItemWheel.Content.UI
 
         public WheelUIState()
         {
-            _wheel = new FourWheel(40);
+            ClientConfigs clientConfigs = ModContent.GetInstance<ClientConfigs>();
+
+            switch(clientConfigs.Wheels)
+            {
+                case 4:
+                    _wheel = new FourWheel(clientConfigs.ItemSize);
+                    break;
+                default:
+                    _wheel = new FourWheel(clientConfigs.ItemSize);
+                    break;
+            }
+            
             Append(_wheel);
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            base.Draw(spriteBatch);
         }
     }
 }
