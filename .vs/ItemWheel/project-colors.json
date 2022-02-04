@@ -1,0 +1,31 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "5df23cf9-c144-4bf7-8320-c613992a4b29": {
+      "ProjectGuid": "5df23cf9-c144-4bf7-8320-c613992a4b29",
+      "DisplayName": "WeaponWheel",
+      "ColorIndex": 0
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    },
+    "831e54aa-cbd0-48a7-95f0-7a40ad15997a": {
+      "ProjectGuid": "831e54aa-cbd0-48a7-95f0-7a40ad15997a",
+      "DisplayName": "tModLoader",
+      "ColorIndex": 1
+    },
+    "b187c5b7-4b2b-4cfb-a063-a5fe4b50e54d": {
+      "ProjectGuid": "b187c5b7-4b2b-4cfb-a063-a5fe4b50e54d",
+      "DisplayName": "ItemWheel",
+      "ColorIndex": 2
+    },
+    "69dbe5b6-6890-4031-826d-32cbe8a06bc0": {
+      "ProjectGuid": "69dbe5b6-6890-4031-826d-32cbe8a06bc0",
+      "DisplayName": "ItemWheel",
+      "ColorIndex": 3
+    }
+  },
+  "NextColorIndex": 4
+}

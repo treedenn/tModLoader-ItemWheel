@@ -1,0 +1,3 @@
+displayName = Item Wheel
+author = treeden
+version = 0.1

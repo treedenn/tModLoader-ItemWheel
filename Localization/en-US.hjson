@@ -1,0 +1,22 @@
+﻿Mods: {
+		ItemWheel: {
+			Config: {
+				ItemHeader: Options
+
+				WheelPlacement: {
+					Label: Wheel placement
+					Tooltip: The position of the wheel, centered
+				}
+
+				Wheels: {
+					Label: Wheels
+					Tooltip: The maximum of items on the wheel
+				}
+
+				ItemSize: {
+					Label: Item Size
+					Tooltip: The size (in pixels) of the image
+				}
+			}
+		}
+}
