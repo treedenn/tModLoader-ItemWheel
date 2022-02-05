@@ -13,7 +13,7 @@ namespace ItemWheel.Content.UI.Element
         public static string WheelAssetPath = "ItemWheel/Assets/Textures/UI";
 
         public Vector2 Anchor { get; set; }
-        public Vector2 MouseAnchor { get; set; } // Vector from Anchor
+        public Vector2 MouseAnchor { get; set; } // screen vector, center is Anchor
 
         protected WheelElement[] _wheelElements;
         protected Vector2[] _elementBorders;
@@ -22,21 +22,11 @@ namespace ItemWheel.Content.UI.Element
 
         private float angle { get => 360f / _wheelElements.Length; }
 
-        private Action funcAnchor;
+        private Action _updateAction;
 
-        protected WheelUI(int wheelSize, int itemSize)
+        protected WheelUI(int wheelSize, ClientConfigs clientConfigs)
         {
-            ClientConfigs clientConfigs = ModContent.GetInstance<ClientConfigs>();
-
-            switch (clientConfigs.WheelPlacement)
-            {
-                case WheelPlacement.PLAYER:
-                    funcAnchor = () => UpdateAnchorAtPlayer();
-                    break;
-                case WheelPlacement.MOUSE:
-                    funcAnchor = () => UpdateAnchorAtMouse();
-                    break;
-            }
+            HandleConfiguration(clientConfigs);
 
             _wheelElements = new WheelElement[wheelSize];
             _elementBorders = new Vector2[wheelSize];
@@ -47,58 +37,84 @@ namespace ItemWheel.Content.UI.Element
             for (int i = 0; i < wheelSize; i++)
             {
                 var texture = ModContent.Request<Texture2D>(texturePath + i, ReLogic.Content.AssetRequestMode.ImmediateLoad);
-                _wheelElements[i] = new WheelElement(texture, itemSize);
+                _wheelElements[i] = new WheelElement(texture, clientConfigs.ItemSize);
                 Append(_wheelElements[i]);
             }
         }
 
         public override void Update(GameTime gameTime)
         {
-            UpdateWheelElements();
+            _updateAction();
             base.Update(gameTime);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (ItemWheel.ToggleWheelKey.Current) {
+            if (!ItemWheel.ToggleWheelKey.JustPressed && ItemWheel.ToggleWheelKey.Current)
+            {
                 base.Draw(spriteBatch);
             }
         }
 
-        protected void UpdateAnchor()
+        private void HandleConfiguration(ClientConfigs clientConfigs)
         {
-            funcAnchor();
+            switch (clientConfigs.WheelPlacement)
+            {
+                case WheelPlacement.PLAYER:
+                    _updateAction = () =>
+                    {
+                        UpdateAnchorAtPlayer();
+                        UpdateWheelPosition();
+                        UpdateBorders();
+                        UpdateMouseAnchor();
+                    };
+                    break;
+                case WheelPlacement.MOUSE:
+                    _updateAction = () =>
+                    {
+                        if (ItemWheel.ToggleWheelKey.JustPressed)
+                        {
+                            UpdateAnchorAtMouse();
+                            UpdateWheelPosition();
+                            UpdateBorders();
+                        }
+                        
+                        UpdateMouseAnchor();
+                    };
+                    break;
+            }
         }
 
-        protected Vector2 UpdateMouseAnchor()
+        private void UpdateWheelPosition()
         {
-            MouseAnchor = Main.MouseScreen - Anchor;
-            return MouseAnchor;
-        }
-
-        // TODO: allow this to be changed depending on configuration (mostly anchor placement)
-        // to increase performance - only run code when required
-        // f.x when wheel toggle is pressed
-        // Solution could be use Action depending the certain configurations, similar to Anchor
-        protected virtual void UpdateWheelElements()
-        {
-            UpdateAnchor();
-            UpdateMouseAnchor();
-
             for (int i = 0; i < _wheelElements.Length; i++)
             {
                 _wheelElements[i].Left.Set(Anchor.X + _wheelVectors[i].X, 0f);
                 _wheelElements[i].Top.Set(Anchor.Y + _wheelVectors[i].Y, 0f);
                 _wheelElements[i].ItemPosition = new Vector2(Anchor.X + _itemVectors[i].X, Anchor.Y + _itemVectors[i].Y);
+            }
+        }
 
-                _wheelElements[i].Anchor = Anchor;
-                _wheelElements[i].MouseAnchor = MouseAnchor;
-                _wheelElements[i].SetBorders(_elementBorders[i % _elementBorders.Length], _elementBorders[(i + 1) % _elementBorders.Length]);
+        private void UpdateBorders()
+        {
+            for (int i = 0; i < _elementBorders.Length; i++)
+            {
+                _elementBorders[i] = Vector2.UnitY.RotatedBy((i * angle - 45f) * Math.PI / 180);
             }
 
             for (int i = 0; i < _elementBorders.Length; i++)
             {
-                _elementBorders[i] = Vector2.UnitY.RotatedBy((i * angle - 45f) * Math.PI / 180);
+                _wheelElements[i].SetBorders(_elementBorders[i % _elementBorders.Length], _elementBorders[(i + 1) % _elementBorders.Length]);
+            }
+        }
+
+        private void UpdateMouseAnchor()
+        {
+            MouseAnchor = Main.MouseScreen - Anchor;
+
+            for (int i = 0; i < _wheelElements.Length; i++)
+            {
+                _wheelElements[i].MouseAnchor = MouseAnchor;
             }
         }
 
@@ -110,9 +126,6 @@ namespace ItemWheel.Content.UI.Element
 
         private void UpdateAnchorAtMouse()
         {
-            // only update when toggle is pressed
-            if (!ItemWheel.ToggleWheelKey.JustPressed) return;
-
             Vector2 mouse = Main.MouseScreen;
             Anchor = new((int)mouse.X, (int)mouse.Y);
         }

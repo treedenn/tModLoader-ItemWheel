@@ -16,10 +16,10 @@ namespace ItemWheel.Content.UI
             switch(clientConfigs.Wheels)
             {
                 case 4:
-                    _wheel = new FourWheel(clientConfigs.ItemSize);
+                    _wheel = new FourWheel(clientConfigs);
                     break;
                 default:
-                    _wheel = new FourWheel(clientConfigs.ItemSize);
+                    _wheel = new FourWheel(clientConfigs);
                     break;
             }
             

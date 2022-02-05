@@ -11,7 +11,6 @@ namespace ItemWheel.Content.UI.Element
 {
     internal class WheelElement : UIElement
     {
-        public Vector2 Anchor { get; set; }
         public Vector2 MouseAnchor { get; set; }
         public Vector2[] Borders { get; private set; }
         public Item HoldingItem { get; private set; }
@@ -43,12 +42,9 @@ namespace ItemWheel.Content.UI.Element
 
         public override void Update(GameTime gameTime)
         {
-            // Add item when holding shift + left - click(empty)
-            // Delete item when holding shift + right - click
-            // Select item on mouse release, no shift
-
             if (!BetweenBorders()) return;
 
+            // swap to item on release
             if (ItemWheel.ToggleWheelKey.JustReleased && Main.mouseItem.IsAir)
             {
                 if (HoldingItem != null)
@@ -71,13 +67,15 @@ namespace ItemWheel.Content.UI.Element
 
                 if (Main.keyState.PressingShift())
                 {
-                    if (Main.mouseRight && HoldingItem != null)
+                    if (Main.mouseLeft && HoldingItem == null && !Main.mouseItem.IsAir)
                     {
-                        HoldingItem = null;
-                    }
-                    else if (Main.mouseLeft && HoldingItem == null && !Main.mouseItem.IsAir)
-                    {
+                        // add item to item wheel
                         HoldingItem = ContentSamples.ItemsByType[Main.mouseItem.type];
+                    }
+                    else if (Main.mouseRight && HoldingItem != null)
+                    {
+                        // remove item from item wheel
+                        HoldingItem = null;
                     }
                 }
             }
@@ -86,6 +84,8 @@ namespace ItemWheel.Content.UI.Element
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             //spriteBatch.DrawString(FontAssets.MouseText.Value, "", GetDimensions().Position(), Color.White);
+
+            
 
             if (BetweenBorders())
             {
