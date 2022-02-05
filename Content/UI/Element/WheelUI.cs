@@ -54,11 +54,8 @@ namespace ItemWheel.Content.UI.Element
 
         public override void Update(GameTime gameTime)
         {
-            if (ItemWheel.ToggleWheelKey.JustPressed || ItemWheel.ToggleWheelKey.Current || ItemWheel.ToggleWheelKey.JustReleased)
-            {
-                UpdateWheelElements();
-                base.Update(gameTime);
-            }
+            UpdateWheelElements();
+            base.Update(gameTime);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -79,6 +76,10 @@ namespace ItemWheel.Content.UI.Element
             return MouseAnchor;
         }
 
+        // TODO: allow this to be changed depending on configuration (mostly anchor placement)
+        // to increase performance - only run code when required
+        // f.x when wheel toggle is pressed
+        // Solution could be use Action depending the certain configurations, similar to Anchor
         protected virtual void UpdateWheelElements()
         {
             UpdateAnchor();
@@ -109,11 +110,11 @@ namespace ItemWheel.Content.UI.Element
 
         private void UpdateAnchorAtMouse()
         {
-            if (ItemWheel.ToggleWheelKey.JustPressed)
-            {
-                Vector2 mouse = Main.MouseScreen;
-                Anchor = new((int)mouse.X, (int)mouse.Y);
-            } 
+            // only update when toggle is pressed
+            if (!ItemWheel.ToggleWheelKey.JustPressed) return;
+
+            Vector2 mouse = Main.MouseScreen;
+            Anchor = new((int)mouse.X, (int)mouse.Y);
         }
     }
 }

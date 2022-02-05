@@ -28,8 +28,8 @@ namespace ItemWheel
 
     internal class WeaponWheelSystem : ModSystem
     {
-        private WheelUIState UIUIState;
-        private UserInterface _uiUIState;
+        private WheelUIState _wheelUIState;
+        private UserInterface _userInterface;
 
         public override void Load()
         {
@@ -37,24 +37,21 @@ namespace ItemWheel
 
             if (!Main.dedServ)
             {
-                this.UIUIState = new WheelUIState();
-                this.UIUIState.Activate();
+                _wheelUIState = new WheelUIState();
+                _wheelUIState.Activate();
 
-                this._uiUIState = new UserInterface();
-                this._uiUIState.SetState(UIUIState);
+                _userInterface = new UserInterface();
+                _userInterface.SetState(_wheelUIState);
             }
         }
 
         public override void UpdateUI(GameTime gameTime)
         {
-            base.UpdateUI(gameTime);
-            this._uiUIState.Update(gameTime);
+            _userInterface.Update(gameTime);
         }
 
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
         {
-            base.ModifyInterfaceLayers(layers);
-
             var hotbarIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Hotbar"));
             if (hotbarIndex != -1)
             {
@@ -62,7 +59,7 @@ namespace ItemWheel
                     "ItemWheel: Wheel",
                     delegate
                     {
-                        _uiUIState.Draw(Main.spriteBatch, new GameTime());
+                        _userInterface.Draw(Main.spriteBatch, new GameTime());
                         return true;
                     },
                     InterfaceScaleType.UI)

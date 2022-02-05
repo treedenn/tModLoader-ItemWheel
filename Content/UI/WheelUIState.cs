@@ -1,7 +1,5 @@
 ﻿using ItemWheel.Content.Common.Configs;
 using ItemWheel.Content.UI.Element;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Terraria.ModLoader;
 using Terraria.UI;
 

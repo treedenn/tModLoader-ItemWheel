@@ -35,6 +35,12 @@ namespace ItemWheel.Content.UI.Element
             Height.Set(_texture.Height(), 0f);
         }
 
+        public void SetBorders(Vector2 v0, Vector2 v1)
+        {
+            Borders[0] = v0;
+            Borders[1] = v1;
+        }
+
         public override void Update(GameTime gameTime)
         {
             // Add item when holding shift + left - click(empty)
@@ -52,7 +58,8 @@ namespace ItemWheel.Content.UI.Element
                     {
                         Utils.Swap(ref Main.LocalPlayer.inventory[invIndex], ref Main.LocalPlayer.inventory[9]);
                         Main.LocalPlayer.selectedItem = 9;
-                    } else
+                    }
+                    else
                     {
                         HoldingItem = null;
                     }
@@ -95,13 +102,7 @@ namespace ItemWheel.Content.UI.Element
             }
         }
 
-        public void SetBorders(Vector2 v0, Vector2 v1)
-        {
-            Borders[0] = v0;
-            Borders[1] = v1;
-        }
-
-        protected void DrawItem(SpriteBatch spriteBatch, Item item)
+        private void DrawItem(SpriteBatch spriteBatch, Item item)
         {
             Main.instance.LoadItem(item.type);
             Asset<Texture2D> itemTexture = TextureAssets.Item[item.type];
@@ -112,12 +113,12 @@ namespace ItemWheel.Content.UI.Element
             spriteBatch.Draw(itemTexture.Value, ItemPosition, rectangle, item.GetAlpha(Color.White), 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
-        protected bool BetweenBorders()
+        private bool BetweenBorders()
         {
             return -CrossProduct(MouseAnchor, Borders[0]) > 0 && CrossProduct(MouseAnchor, Borders[1]) > 0;
         }
 
-        protected static int FindItemInInventory(int itemType)
+        private static int FindItemInInventory(int itemType)
         {
             Item[] inventory = Main.LocalPlayer.inventory;
             for (int i = 0; i < inventory.Length; i++)
@@ -128,7 +129,7 @@ namespace ItemWheel.Content.UI.Element
             return -1;
         }
 
-        protected static float CrossProduct(Vector2 v0, Vector2 v1)
+        private static float CrossProduct(Vector2 v0, Vector2 v1)
         {
             return (v0.X * v1.Y) - (v0.Y * v1.X);
         }
