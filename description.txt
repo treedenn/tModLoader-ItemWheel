@@ -1,1 +1,9 @@
-Weapon Wheel is a pretty cool mod, it does...this. Modify this file with a description of your mod.
+Item Wheel is a client-based mod that allows the player to select items quickly from a preset controlled by the player.
+
+The mod itself can be adjusted through the configurations it provides.
+
+These configurations are the following:
+- Wheel placement
+- Wheel options (4, 6 and 8)
+- Item scale
+- Deadzone

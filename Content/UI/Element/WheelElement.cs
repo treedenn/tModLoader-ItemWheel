@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using ReLogic.Graphics;
+using System;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
@@ -11,23 +12,28 @@ namespace ItemWheel.Content.UI.Element
 {
     internal class WheelElement : UIElement
     {
+        private static float DefaultItemSize = 32f;
+
+        public static Vector2 Anchor { get; set; }
+        public static float ItemScale { get; set; }
+        public static int Deadzone { get; set; }
+
         public Vector2 MouseAnchor { get; set; }
         public Vector2[] Borders { get; private set; }
         public Item HoldingItem { get; private set; }
         public Vector2 ItemPosition { get; set; }
 
-        public float HalfWidth { get => Width.Pixels / 2; }
-        public float HalfHeight { get => Height.Pixels / 2; }
-
         private Asset<Texture2D> _texture;
-        private float _itemSize;
 
-        public WheelElement(Asset<Texture2D> texture, float itemSize) : base()
+        private Asset<Texture2D> _itemTexture;
+        private float _itemScale;
+        private Rectangle _itemRectangle;
+
+        public WheelElement(Asset<Texture2D> texture) : base()
         {
             Borders = new Vector2[2];
             HoldingItem = null;
 
-            _itemSize = itemSize;
             _texture = texture;
 
             Width.Set(_texture.Width(), 0f);
@@ -42,7 +48,7 @@ namespace ItemWheel.Content.UI.Element
 
         public override void Update(GameTime gameTime)
         {
-            if (!BetweenBorders()) return;
+            if (!IsSelected()) return;
 
             // swap to item on release
             if (ItemWheel.ToggleWheelKey.JustReleased && Main.mouseItem.IsAir)
@@ -71,6 +77,7 @@ namespace ItemWheel.Content.UI.Element
                     {
                         // add item to item wheel
                         HoldingItem = ContentSamples.ItemsByType[Main.mouseItem.type];
+                        LoadItem(HoldingItem);
                     }
                     else if (Main.mouseRight && HoldingItem != null)
                     {
@@ -85,9 +92,7 @@ namespace ItemWheel.Content.UI.Element
         {
             //spriteBatch.DrawString(FontAssets.MouseText.Value, "", GetDimensions().Position(), Color.White);
 
-            
-
-            if (BetweenBorders())
+            if (IsSelected())
             {
                 spriteBatch.Draw(_texture.Value, GetDimensions().Position(), Color.CornflowerBlue);
             }
@@ -98,24 +103,47 @@ namespace ItemWheel.Content.UI.Element
 
             if (HoldingItem != null)
             {
-                DrawItem(spriteBatch, HoldingItem);
+                DrawItem(spriteBatch);
             }
         }
 
-        private void DrawItem(SpriteBatch spriteBatch, Item item)
+        private void LoadItem(Item item)
         {
             Main.instance.LoadItem(item.type);
-            Asset<Texture2D> itemTexture = TextureAssets.Item[item.type];
+            _itemTexture = TextureAssets.Item[item.type];
+            _itemRectangle = (Main.itemAnimations[item.type] == null) ? _itemTexture.Frame() : Main.itemAnimations[item.type].GetFrame(_itemTexture.Value);
 
-            Rectangle rectangle = (Main.itemAnimations[item.type] == null) ? itemTexture.Frame() : Main.itemAnimations[item.type].GetFrame(itemTexture.Value);
-            float scale = _itemSize / rectangle.Height;
+            float ratioX = _itemTexture.Width() / _itemTexture.Height();
+            float ratioY = _itemTexture.Height() / _itemTexture.Width();
 
-            spriteBatch.Draw(itemTexture.Value, ItemPosition, rectangle, item.GetAlpha(Color.White), 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+            if (ratioX > ratioY)
+            {
+                _itemScale = DefaultItemSize / _itemTexture.Width();
+            }
+            else if (ratioX < ratioY)
+            {
+                _itemScale = DefaultItemSize / _itemTexture.Height();
+            }
+            else
+            {
+                _itemScale = DefaultItemSize / _itemTexture.Width();
+            }
+
+            _itemScale *= ItemScale;
         }
 
-        private bool BetweenBorders()
+        private void DrawItem(SpriteBatch spriteBatch)
         {
-            return -CrossProduct(MouseAnchor, Borders[0]) > 0 && CrossProduct(MouseAnchor, Borders[1]) > 0;
+            var topLeftItemPosition = ItemPosition - new Vector2(_itemTexture.Width(), _itemTexture.Height()) * _itemScale / 2;
+            spriteBatch.Draw(_itemTexture.Value, topLeftItemPosition, _itemRectangle, HoldingItem.GetAlpha(Color.White), 
+                0f, Vector2.Zero, _itemScale, SpriteEffects.None, 0f);
+        }
+
+        private bool IsSelected()
+        {
+            return Vector2.Distance(MouseAnchor, new Vector2()) > Deadzone
+                && - CrossProduct(MouseAnchor, Borders[0]) > 0
+                && CrossProduct(MouseAnchor, Borders[1]) > 0;
         }
 
         private static int FindItemInInventory(int itemType)

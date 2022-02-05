@@ -18,6 +18,12 @@ namespace ItemWheel.Content.UI
                 case 4:
                     _wheel = new FourWheel(clientConfigs);
                     break;
+                case 6:
+                    _wheel = new SixWheel(clientConfigs);
+                    break;
+                case 8:
+                    _wheel = new EightWheel(clientConfigs);
+                    break;
                 default:
                     _wheel = new FourWheel(clientConfigs);
                     break;

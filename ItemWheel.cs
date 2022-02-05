@@ -45,6 +45,14 @@ namespace ItemWheel
             }
         }
 
+        public override void Unload()
+        {
+            base.Unload();
+
+            _wheelUIState = null;
+            _userInterface = null;
+        }
+
         public override void UpdateUI(GameTime gameTime)
         {
             _userInterface.Update(gameTime);
